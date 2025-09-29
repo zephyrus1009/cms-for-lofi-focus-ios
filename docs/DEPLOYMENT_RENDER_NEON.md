@@ -14,7 +14,7 @@
 - Local machine with Node.js 20.x, npm (or Yarn), and the Strapi CLI (`npx @strapi/cli`).
 - Production secrets: `APP_KEYS`, `ADMIN_JWT_SECRET`, `JWT_SECRET`, `API_TOKEN_SALT`, `TRANSFER_TOKEN_SALT`, Cloudflare R2 keys, and any Render cron secrets you plan to use.
 
-## Step 1 – Prepare Neon
+## Step 1 ? Prepare Neon
 
 1. Create a Neon project (e.g. `lofi-focus-cms`) in a region close to your users.
 2. Keep the `main` branch for production and create a database such as `strapi`.
@@ -22,15 +22,14 @@
 4. Copy both connection strings from the Neon console:
    - **Pooled** (`-pooler` host): use in production runtime.
    - **Direct** (no `-pooler`): use locally for migrations/maintenance.
-5. With the direct string, run Strapi locally to initialise the schema:
+5. With the direct string saved in your `.env`, run Strapi locally to initialise the schema:
    ```bash
    cd cms-for-lofi-focus-ios
-   export DATABASE_URL="postgresql://...direct...?sslmode=require"
-   export NODE_ENV=production
-   npm install
-   npm run build
-   npm run strapi migrations:run   # only if you keep custom migrations
-   npm run start                   # ensure the app boots against Neon
+   set -a; source .env; set +a     # loads DATABASE_URL and related secrets
+   NODE_ENV=production npm install
+   NODE_ENV=production npm run build
+   NODE_ENV=production npm run strapi migrations:run   # only if you keep custom migrations
+   NODE_ENV=production npm run start                   # ensure the app boots against Neon
    ```
 6. After the initial run, stop the server and switch `DATABASE_URL` back to your local dev database so you do not edit production data while coding.
 
@@ -46,7 +45,7 @@ NODE_ENV=production npm run strapi export --no-encrypt   # optional backup
 
 Confirm the API still works (`curl http://localhost:1337/api/mentor-groups?populate=insights`). This keeps Neon aligned before the next deploy.
 
-## Step 2 – Provision Cloudflare R2 and CDN
+## Step 2 ? Provision Cloudflare R2 and CDN
 
 1. Create an R2 bucket (e.g. `lofi-focus-mentor`).
 2. Generate an API token with **Edit** permission on that bucket.
@@ -58,7 +57,7 @@ Confirm the API still works (`curl http://localhost:1337/api/mentor-groups?popul
    - `mentor/poster/mentor_sleep_sensei_poster.png`
 6. Store the access key, secret, endpoint, bucket name, and CDN base; you will map them to environment variables in Step 3.
 
-## Step 3 – Environment variables
+## Step 3 ? Environment variables
 
 Add these locally (`.env`) and in Render > _Environment_.
 
@@ -86,7 +85,7 @@ Add these locally (`.env`) and in Render > _Environment_.
 
 If you use Strapi transfer/upload tokens, also add `STRAPI_ADMIN_CLIENT_URL` or other defaults required by your build.
 
-## Step 4 – Deploy to Render
+## Step 4 ? Deploy to Render
 
 1. Click **New +** ? **Web Service**, pick this repo, and set the root to the repository root.
 2. Configure:
@@ -97,7 +96,7 @@ If you use Strapi transfer/upload tokens, also add `STRAPI_ADMIN_CLIENT_URL` or 
    - Instance: start with the free tier; upgrade to Starter when CPU/RAM usage demands it.
 3. Add all environment variables from Step 3. Use the **pooled** Neon string for `DATABASE_URL` in Render.
 4. Create the service. Render will install dependencies, run the build, execute migrations, and boot Strapi.
-5. Once the deployment shows “Live”, open `https://<service>.onrender.com/admin` to finish the admin onboarding.
+5. Once the deployment shows ?Live?, open `https://<service>.onrender.com/admin` to finish the admin onboarding.
 
 ### Optional: cron jobs
 
@@ -107,7 +106,7 @@ npm run strapi export -- --no-encrypt
 ```
 Schedule it nightly and upload the exported zip to R2 or another safe location.
 
-## Step 5 – Post-deploy checklist
+## Step 5 ? Post-deploy checklist
 
 1. **Create the first admin** via the Strapi onboarding UI.
 2. **Configure the upload provider** (S3 plugin) with the R2 credentials.
@@ -120,7 +119,7 @@ Schedule it nightly and upload the exported zip to R2 or another safe location.
    Response should include populated `insights` and media URLs with your CDN base.
 6. **Update the main app**: set `STRAPI_API_URL`, `STRAPI_API_TOKEN`, `CDN_BASE_URL`, and (optionally) `MENTOR_MEDIA_BASE_URL` in the `lofi-focus-ios` deployment so it fetches from this CMS.
 
-## Step 6 – Maintenance
+## Step 6 ? Maintenance
 
 - Rotate Strapi secrets quarterly and redeploy.
 - Monitor Render logs and the Neon dashboard for connection saturation. Upgrade the Neon plan if you see frequent `too many connections` errors.
