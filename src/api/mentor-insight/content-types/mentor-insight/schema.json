@@ -1,0 +1,47 @@
+{
+  "collectionName": "mentor_insights",
+  "info": {
+    "singularName": "mentor-insight",
+    "pluralName": "mentor-insights",
+    "displayName": "Mentor Insight"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": false
+    }
+  },
+  "attributes": {
+    "slug": {
+      "type": "uid",
+      "targetField": "mainIdea",
+      "required": true
+    },
+    "order": {
+      "type": "integer",
+      "required": true
+    },
+    "mainIdea": {
+      "type": "string",
+      "required": true
+    },
+    "shortExplanation": {
+      "type": "richtext",
+      "required": true
+    },
+    "callToAction": {
+      "type": "text",
+      "required": true
+    },
+    "group": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::mentor-group.mentor-group",
+      "inversedBy": "insights",
+      "required": true
+    }
+  }
+}
+

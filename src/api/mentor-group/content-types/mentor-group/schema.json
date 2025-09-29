@@ -1,0 +1,68 @@
+{
+  "collectionName": "mentor_groups",
+  "info": {
+    "singularName": "mentor-group",
+    "pluralName": "mentor-groups",
+    "displayName": "Mentor Group"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": false
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "order": {
+      "type": "integer",
+      "required": true
+    },
+    "domain": {
+      "type": "enumeration",
+      "enum": [
+        "sleep_recovery",
+        "morning_routine",
+        "digital_minimalism",
+        "health_energy",
+        "mindfulness_clarity",
+        "focus_work",
+        "relationships_connection",
+        "learning_growth"
+      ],
+      "required": true
+    },
+    "personaSlug": {
+      "type": "string",
+      "required": true
+    },
+    "mediaMasterUrl": {
+      "type": "string"
+    },
+    "mediaFallback720Url": {
+      "type": "string"
+    },
+    "mediaPosterUrl": {
+      "type": "string"
+    },
+    "insights": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::mentor-insight.mentor-insight",
+      "mappedBy": "group"
+    }
+  }
+}
+

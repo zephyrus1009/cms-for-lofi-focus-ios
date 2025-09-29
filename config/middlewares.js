@@ -1,0 +1,1 @@
+module.exports = [\n  'strapi::errors',\n  'strapi::security',\n  'strapi::cors',\n  'strapi::poweredBy',\n  'strapi::logger',\n  'strapi::query',\n  'strapi::body',\n  'strapi::session',\n  'strapi::favicon',\n  'strapi::public',\n];\n

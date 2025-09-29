@@ -1,0 +1,1 @@
+const { createCoreRouter } = require('@strapi/strapi').factories;\n\nmodule.exports = createCoreRouter('api::mentor-group.mentor-group', {\n  config: {\n    find: { auth: false },\n    findOne: { auth: false },\n  },\n});\n
