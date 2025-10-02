@@ -2,4 +2,4 @@
 pm run develop – start Strapi in watch mode.\n- 
 pm run build – build the Strapi admin panel.\n- 
 pm run start – start Strapi in production mode.\n- 
-pm run strapi migrations:run – manually run pending database migrations.\n\nSee docs/DEPLOYMENT_RENDER_NEON.md for Render + Neon deployment instructions and STRAPI_CDN_REQUIREMENTS.md for CDN expectations.\n
+pm run strapi migrations:run – manually run pending database migrations.\n\nSee docs/RUNBOOK.md for Docker-based local development and Render deployment steps, and docs/PROJECT_REQUIREMENTS.md for overall project requirements.\n
