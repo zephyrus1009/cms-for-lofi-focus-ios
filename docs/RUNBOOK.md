@@ -141,13 +141,23 @@ Reuse your offline `.env` as a base, then adjust the values listed below before 
    - **Pooled** string (`...-pooler.neon.tech`): use in Render.
    - **Direct** string: use locally to run migrations or maintenance commands.
 4. Before the first deploy, run Strapi locally with the direct string to initialise the schema:
-   ```
-   export DATABASE_URL="<neon-direct-string>?sslmode=require"
-   NODE_ENV=production npm install
-   NODE_ENV=production npm run build
-   NODE_ENV=production npm run strapi migrations:run
-   NODE_ENV=production npm run start
-   ```
+```
+    # macOS / Linux (bash or zsh)
+    export DATABASE_URL="<neon-direct-string>?sslmode=require"
+    NODE_ENV=production npm install
+    NODE_ENV=production npm run build
+    # Strapi 4 auto-syncs schema; migrations step not required
+    NODE_ENV=production npm run start
+    
+    # Windows (Command Prompt)
+    set "DATABASE_URL=<neon-direct-string>?sslmode=require"
+    set "NODE_ENV=production"
+    npm install
+    npm run build
+    # Migrations step not required; start once to sync schema
+    npm run start
+    ```
+  > PowerShell: run `$env:DATABASE_URL="<neon-direct-string>?sslmode=require"; $env:NODE_ENV="production"` before the npm commands, then clear them with `Remove-Item Env:DATABASE_URL` when done. Start the app once with `npm run start` to let Strapi create any missing tables.
 5. After verifying, switch `DATABASE_URL` back to the SQLite (unset) or development value to avoid touching production data during local coding.
 
 ### 4. Configure Cloudflare R2 and CDN
@@ -160,7 +170,7 @@ Reuse your offline `.env` as a base, then adjust the values listed below before 
 1. In Render, create a new **Web Service** pointing at this repository.
 2. Set the environment to **Node** and choose the region closest to your Neon database.
 3. Build command: `npm install && npm run build`
-4. Start command: `npm run strapi migrations:run && npm run start`
+4. Start command: `npm run start` (Strapi initialises the database schema automatically).
 5. Add all environment variables from the table above (use the pooled Neon string for `DATABASE_URL`).
 6. Deploy the service. Render installs dependencies, builds the admin, runs migrations, and boots Strapi.
 7. Once the service is live, open `https://<service>.onrender.com/admin` to complete the admin onboarding.
@@ -176,3 +186,6 @@ Reuse your offline `.env` as a base, then adjust the values listed below before 
 - Run `npm run strapi export -- --no-encrypt` before major releases and store the backup securely (e.g. R2, S3, or encrypted storage).
 - Monitor Render logs plus Neon metrics for connection pool saturation and upgrade plans when required.
 - Keep the R2 bucket structure aligned with the expectations documented in `docs/PROJECT_REQUIREMENTS.md` to avoid broken media links.
+
+
+

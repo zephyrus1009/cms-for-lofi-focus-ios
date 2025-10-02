@@ -1,1 +1,13 @@
-module.exports = ({ env }) => ({\n  connection: {\n    connectionString: env('DATABASE_URL'),\n    client: 'postgres',\n    connection: {\n      ssl: env.bool('DATABASE_SSL', true) ? { rejectUnauthorized: false } : false,\n    },\n    pool: {\n      min: env.int('DATABASE_POOL_MIN', 2),\n      max: env.int('DATABASE_POOL_MAX', 10),\n    },\n  },\n});\n
+module.exports = ({ env }) => ({
+  connection: {
+    connectionString: env('DATABASE_URL'),
+    client: 'postgres',
+    connection: {
+      ssl: env.bool('DATABASE_SSL', true) ? { rejectUnauthorized: false } : false,
+    },
+    pool: {
+      min: env.int('DATABASE_POOL_MIN', 2),
+      max: env.int('DATABASE_POOL_MAX', 10),
+    },
+  },
+});

@@ -1,1 +1,9 @@
-module.exports = ({ env }) => ({\n  connection: {\n    client: 'sqlite',\n    connection: {\n      filename: env('DATABASE_FILENAME', '.tmp/data.db'),\n    },\n    useNullAsDefault: true,\n  },\n});\n
+module.exports = ({ env }) => ({
+  connection: {
+    client: 'sqlite',
+    connection: {
+      filename: env('DATABASE_FILENAME', '.tmp/data.db'),
+    },
+    useNullAsDefault: true,
+  },
+});

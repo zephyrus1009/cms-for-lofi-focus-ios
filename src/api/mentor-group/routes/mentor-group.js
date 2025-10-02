@@ -1,1 +1,9 @@
-const { createCoreRouter } = require('@strapi/strapi').factories;\n\nmodule.exports = createCoreRouter('api::mentor-group.mentor-group', {\n  config: {\n    find: { auth: false },\n    findOne: { auth: false },\n  },\n});\n
+const { createCoreRouter } = require('@strapi/strapi').factories;
+
+module.exports = createCoreRouter('api::mentor-group.mentor-group', {
+  config: {
+    find: { auth: false },
+    findOne: { auth: false },
+  },
+});
+

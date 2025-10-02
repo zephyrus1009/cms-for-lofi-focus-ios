@@ -1,1 +1,22 @@
-const { createCoreController } = require('@strapi/strapi').factories;\n\nmodule.exports = createCoreController('api::mentor-group.mentor-group', ({ strapi }) => ({\n  async find(ctx) {\n    const defaultPopulate = { insights: true };\n    ctx.query = {\n      ...ctx.query,\n      populate: ctx.query.populate ?? defaultPopulate,\n      sort: ctx.query.sort ?? ['order:asc'],\n    };\n    return await super.find(ctx);\n  },\n\n  async findOne(ctx) {\n    const defaultPopulate = { insights: true };\n    ctx.query = {\n      ...ctx.query,\n      populate: ctx.query.populate ?? defaultPopulate,\n    };\n    return await super.findOne(ctx);\n  },\n}));\n
+const { createCoreController } = require('@strapi/strapi').factories;
+
+module.exports = createCoreController('api::mentor-group.mentor-group', ({ strapi }) => ({
+  async find(ctx) {
+    const defaultPopulate = { insights: true };
+    ctx.query = {
+      ...ctx.query,
+      populate: ctx.query.populate ?? defaultPopulate,
+      sort: ctx.query.sort ?? ['order:asc'],
+    };
+    return await super.find(ctx);
+  },
+
+  async findOne(ctx) {
+    const defaultPopulate = { insights: true };
+    ctx.query = {
+      ...ctx.query,
+      populate: ctx.query.populate ?? defaultPopulate,
+    };
+    return await super.findOne(ctx);
+  },
+}));
