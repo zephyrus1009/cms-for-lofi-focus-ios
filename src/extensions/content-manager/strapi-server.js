@@ -70,5 +70,35 @@ module.exports = (plugin) => {
 
   attachGetFieldLayouts(contentTypesService);
 
+  const permissionService = plugin.services?.permission;
+  const originalRegisterPermissions = permissionService?.registerPermissions?.bind(permissionService);
+
+  if (originalRegisterPermissions) {
+    const actionIds = [
+      'plugin::content-manager.explorer.create',
+      'plugin::content-manager.explorer.read',
+      'plugin::content-manager.explorer.update',
+      'plugin::content-manager.explorer.delete',
+      'plugin::content-manager.explorer.publish',
+      'plugin::content-manager.single-types.configure-view',
+      'plugin::content-manager.collection-types.configure-view',
+      'plugin::content-manager.components.configure-layout',
+    ];
+
+    permissionService.registerPermissions = async (...args) => {
+      const actionProvider = globalThis.strapi?.admin?.services?.permission?.actionProvider;
+
+      if (actionProvider) {
+        for (const actionId of actionIds) {
+          if (actionProvider.has?.(actionId) && typeof actionProvider.delete === 'function') {
+            await actionProvider.delete(actionId);
+          }
+        }
+      }
+
+      return originalRegisterPermissions(...args);
+    };
+  }
+
   return plugin;
 };
