@@ -175,6 +175,11 @@ Reuse your offline `.env` as a base, then adjust the values listed below before 
 6. Deploy the service. Render installs dependencies, builds the admin, runs migrations, and boots Strapi.
 7. Once the service is live, open `https://<service>.onrender.com/admin` to complete the admin onboarding.
 
+#### Deployment pitfalls
+- **Preserve the nested database connection string.** Production relies on the `connection.connectionString` shape inside [`config/env/production/database.js`](../config/env/production/database.js); flattening or renaming it prevents Strapi from reading the Neon URL and breaks boot.
+- **Keep the permission duplicate guard intact.** The helper in [`src/extensions/shared/permission-provider-guard.js`](../src/extensions/shared/permission-provider-guard.js) prevents admin ACL duplication and must stay wired through the admin and content-manager wrappers ([`src/extensions/admin/strapi-server.js`](../src/extensions/admin/strapi-server.js), [`src/extensions/content-manager/strapi-server.js`](../src/extensions/content-manager/strapi-server.js)).
+- **Export lifecycle hooks only.** [`src/index.js`](../src/index.js) should remain a pure lifecycle module—avoid invoking `strapi().start()` or other manual bootstrapping so Render controls process start-up.
+
 ### 6. Post-deploy checklist
 - Configure the upload provider inside the Strapi admin to confirm R2 credentials are valid.
 - Import or create mentor content so external clients can read data.
