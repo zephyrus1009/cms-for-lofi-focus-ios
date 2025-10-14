@@ -16,10 +16,112 @@ const normaliseLayouts = (layouts = {}) => {
   };
 };
 
+const resolveActionId = (actionAttributes) => {
+  if (!actionAttributes) {
+    return undefined;
+  }
+
+  if (typeof actionAttributes === 'string') {
+    return actionAttributes;
+  }
+
+  if (actionAttributes.actionId) {
+    return actionAttributes.actionId;
+  }
+
+  const { uid, pluginName } = actionAttributes;
+
+  if (typeof uid !== 'string') {
+    return undefined;
+  }
+
+  if (!pluginName) {
+    return `api::${uid}`;
+  }
+
+  if (pluginName === 'admin') {
+    return `admin::${uid}`;
+  }
+
+  return `plugin::${pluginName}.${uid}`;
+};
+
+const patchActionProvider = () => {
+  const actionProvider = globalThis.strapi?.admin?.services?.permission?.actionProvider;
+
+  if (!actionProvider || actionProvider.__cmsLofiDuplicateGuardPatched) {
+    return;
+  }
+
+  const originalRegister = actionProvider.register;
+
+  if (typeof originalRegister !== 'function') {
+    actionProvider.__cmsLofiDuplicateGuardPatched = true;
+    return;
+  }
+
+  const deleteIfExists = async function deleteIfExists(actionId) {
+    if (!actionId) {
+      return;
+    }
+
+    if (typeof this.has === 'function' && typeof this.delete === 'function' && this.has(actionId)) {
+      await this.delete(actionId);
+    }
+  };
+
+  actionProvider.register = async function registerWithDuplicateGuard(...args) {
+    const [actionAttributes] = args;
+    const actionId = resolveActionId(actionAttributes);
+
+    await deleteIfExists.call(this, actionId);
+
+    return originalRegister.apply(this, args);
+  };
+
+  const originalRegisterMany = actionProvider.registerMany;
+
+  if (typeof originalRegisterMany === 'function') {
+    actionProvider.registerMany = async function registerManyWithDuplicateGuard(...args) {
+      const [actionsAttributes] = args;
+
+      if (Array.isArray(actionsAttributes)) {
+        for (const attributes of actionsAttributes) {
+          const actionId = resolveActionId(attributes);
+          await deleteIfExists.call(this, actionId);
+        }
+      }
+
+      return originalRegisterMany.apply(this, args);
+    };
+  }
+
+  actionProvider.__cmsLofiDuplicateGuardPatched = true;
+};
+
 module.exports = (plugin) => {
   if (!plugin?.services?.['content-types']) {
     return plugin;
   }
+
+  patchActionProvider();
+
+  const wrapLifecycleHook = (hookName) => {
+    const originalHook = plugin[hookName];
+
+    plugin[hookName] = function contentManagerLifecycleHookWrapper(...args) {
+      patchActionProvider();
+
+      if (typeof originalHook === 'function') {
+        return originalHook.apply(this, args);
+      }
+
+      return undefined;
+    };
+  };
+
+  wrapLifecycleHook('register');
+  wrapLifecycleHook('bootstrap');
 
   const contentTypesService = plugin.services['content-types'];
   const originalFindConfiguration = contentTypesService.findConfiguration?.bind(contentTypesService);
@@ -69,45 +171,6 @@ module.exports = (plugin) => {
   };
 
   attachGetFieldLayouts(contentTypesService);
-
-  const actionIds = [
-    'plugin::content-manager.explorer.create',
-    'plugin::content-manager.explorer.read',
-    'plugin::content-manager.explorer.update',
-    'plugin::content-manager.explorer.delete',
-    'plugin::content-manager.explorer.publish',
-    'plugin::content-manager.single-types.configure-view',
-    'plugin::content-manager.collection-types.configure-view',
-    'plugin::content-manager.components.configure-layout',
-  ];
-
-  const originalPermissionServiceFactory = plugin.services?.permission;
-
-  if (typeof originalPermissionServiceFactory === 'function') {
-    plugin.services.permission = (...args) => {
-      const permissionService = originalPermissionServiceFactory(...args);
-      const originalRegisterPermissions =
-        permissionService?.registerPermissions?.bind(permissionService);
-
-      if (originalRegisterPermissions) {
-        permissionService.registerPermissions = async (...registerArgs) => {
-          const actionProvider = globalThis.strapi?.admin?.services?.permission?.actionProvider;
-
-          if (actionProvider) {
-            for (const actionId of actionIds) {
-              if (actionProvider.has?.(actionId) && typeof actionProvider.delete === 'function') {
-                await actionProvider.delete(actionId);
-              }
-            }
-          }
-
-          return originalRegisterPermissions(...registerArgs);
-        };
-      }
-
-      return permissionService;
-    };
-  }
 
   return plugin;
 };
