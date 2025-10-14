@@ -1,5 +1,7 @@
 'use strict';
 
+const { patchPermissionProviders } = require('../shared/permission-provider-guard');
+
 const cloneArray = (value) => (Array.isArray(value) ? [...value] : []);
 
 const normaliseLayouts = (layouts = {}) => {
@@ -16,87 +18,8 @@ const normaliseLayouts = (layouts = {}) => {
   };
 };
 
-const resolveActionId = (actionAttributes) => {
-  if (!actionAttributes) {
-    return undefined;
-  }
-
-  if (typeof actionAttributes === 'string') {
-    return actionAttributes;
-  }
-
-  if (actionAttributes.actionId) {
-    return actionAttributes.actionId;
-  }
-
-  const { uid, pluginName } = actionAttributes;
-
-  if (typeof uid !== 'string') {
-    return undefined;
-  }
-
-  if (!pluginName) {
-    return `api::${uid}`;
-  }
-
-  if (pluginName === 'admin') {
-    return `admin::${uid}`;
-  }
-
-  return `plugin::${pluginName}.${uid}`;
-};
-
-const patchActionProvider = () => {
-  const actionProvider = globalThis.strapi?.admin?.services?.permission?.actionProvider;
-
-  if (!actionProvider || actionProvider.__cmsLofiDuplicateGuardPatched) {
-    return;
-  }
-
-  const originalRegister = actionProvider.register;
-
-  if (typeof originalRegister !== 'function') {
-    actionProvider.__cmsLofiDuplicateGuardPatched = true;
-    return;
-  }
-
-  const deleteIfExists = async function deleteIfExists(actionId) {
-    if (!actionId) {
-      return;
-    }
-
-    if (typeof this.has === 'function' && typeof this.delete === 'function' && this.has(actionId)) {
-      await this.delete(actionId);
-    }
-  };
-
-  actionProvider.register = async function registerWithDuplicateGuard(...args) {
-    const [actionAttributes] = args;
-    const actionId = resolveActionId(actionAttributes);
-
-    await deleteIfExists.call(this, actionId);
-
-    return originalRegister.apply(this, args);
-  };
-
-  const originalRegisterMany = actionProvider.registerMany;
-
-  if (typeof originalRegisterMany === 'function') {
-    actionProvider.registerMany = async function registerManyWithDuplicateGuard(...args) {
-      const [actionsAttributes] = args;
-
-      if (Array.isArray(actionsAttributes)) {
-        for (const attributes of actionsAttributes) {
-          const actionId = resolveActionId(attributes);
-          await deleteIfExists.call(this, actionId);
-        }
-      }
-
-      return originalRegisterMany.apply(this, args);
-    };
-  }
-
-  actionProvider.__cmsLofiDuplicateGuardPatched = true;
+const ensurePermissionProvidersPatched = () => {
+  patchPermissionProviders();
 };
 
 module.exports = (plugin) => {
@@ -104,13 +27,13 @@ module.exports = (plugin) => {
     return plugin;
   }
 
-  patchActionProvider();
+  ensurePermissionProvidersPatched();
 
   const wrapLifecycleHook = (hookName) => {
     const originalHook = plugin[hookName];
 
     plugin[hookName] = function contentManagerLifecycleHookWrapper(...args) {
-      patchActionProvider();
+      ensurePermissionProvidersPatched();
 
       if (typeof originalHook === 'function') {
         return originalHook.apply(this, args);
