@@ -16,6 +16,8 @@ Strapi v4 project that powers mentor personas and insights for the Lofi Focus ap
    ```
 4. Open http://localhost:1337/admin to create the first admin account.
 
+> **Note:** The `public/uploads` directory is intentionally tracked in Git so Strapi's static middleware can initialise during Render deploys. Do not remove the `.gitkeep` placeholders even when using the S3 upload provider.
+
 ### Production-style build
 
 ```bash
@@ -38,8 +40,8 @@ Both REST endpoints (`/api/mentor-groups`, `/api/mentor-insights`) are public fo
 
 ## Useful scripts
 
-- `npm run develop` – start Strapi in watch mode.
-- `npm run build` – build the Strapi admin panel.
-- `npm run start` – start Strapi in production mode.
+- `npm run develop` â€“ start Strapi in watch mode.
+- `npm run build` â€“ build the Strapi admin panel.
+- `npm run start` â€“ start Strapi in production mode.
 
 See docs/RUNBOOK.md for Docker-based local development and Render deployment steps, and docs/PROJECT_REQUIREMENTS.md for overall project requirements.
