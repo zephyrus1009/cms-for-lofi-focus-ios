@@ -1,8 +1,8 @@
 module.exports = ({ env }) => ({
   connection: {
-    connectionString: env('DATABASE_URL'),
     client: 'postgres',
     connection: {
+      connectionString: env('DATABASE_URL'),
       ssl: env.bool('DATABASE_SSL', true) ? { rejectUnauthorized: false } : false,
     },
     pool: {
