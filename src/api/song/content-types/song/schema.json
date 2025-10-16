@@ -1,0 +1,49 @@
+{
+  "collectionName": "songs",
+  "info": {
+    "singularName": "song",
+    "pluralName": "songs",
+    "displayName": "Song"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "artist": {
+      "type": "string",
+      "required": true
+    },
+    "album": {
+      "type": "string"
+    },
+    "durationSeconds": {
+      "type": "integer",
+      "required": true
+    },
+    "audioFile": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": [
+        "files"
+      ]
+    },
+    "audioPreviewUrl": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::music-tag.music-tag"
+    }
+  }
+}

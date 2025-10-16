@@ -1,0 +1,40 @@
+{
+  "collectionName": "playlists",
+  "info": {
+    "singularName": "playlist",
+    "pluralName": "playlists",
+    "displayName": "Playlist"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "coverImage": {
+      "type": "media",
+      "multiple": false,
+      "required": true
+    },
+    "tags": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::music-tag.music-tag"
+    },
+    "tracks": {
+      "type": "component",
+      "repeatable": true,
+      "component": "music.playlist-track"
+    }
+  }
+}

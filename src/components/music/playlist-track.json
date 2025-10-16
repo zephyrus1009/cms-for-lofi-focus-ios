@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_music_playlist_tracks",
+  "info": {
+    "displayName": "Playlist Track",
+    "icon": "music"
+  },
+  "attributes": {
+    "position": {
+      "type": "integer",
+      "required": true
+    },
+    "song": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::song.song",
+      "required": true
+    }
+  }
+}
