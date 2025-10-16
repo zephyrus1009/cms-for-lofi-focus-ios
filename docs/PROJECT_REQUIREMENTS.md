@@ -61,3 +61,8 @@ All environments (local, staging, production) must provide these variables. Gene
 
 ## Related Documents
 - `docs/RUNBOOK.md` - step-by-step instructions for local Docker-based development and Render + Neon deployment.
+
+
+## Chức năng cần thiết
+- Quy ước nhanh: Gọi project này là A, project này sẽ quản lý content mà project B (một project khác) post lên hoặc gọi tới.
+1. Admin của project A có thể tạo các playlist nhạc và project B có thể dùng để user nghe. Playlist sẽ cần có cover image, title, tag, và các bài hát.
