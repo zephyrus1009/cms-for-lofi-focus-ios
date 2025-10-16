@@ -104,6 +104,14 @@ The first run downloads images, installs dependencies, and brings Strapi up in d
 - Visit `http://localhost:1337/admin` to create the first admin user.
 - Import or create Mentor Groups/Insights. Uploaded media will write into the MinIO bucket via the S3 provider.
 
+### 6a. Manage playlists & tracks
+1. **Create the playlist container.** Add the playlist metadata (title, summary, description, and immutable slug) before attaching media. Select a cover image or upload one—covers should follow the `playlist/covers/{slug}_cover.{ext}` pattern so Cloudflare CDN caches remain stable across environments.
+2. **Upload track audio with predictable keys.** When adding tracks, upload audio files using `playlist/tracks/{playlist-slug}/{track-slug}.mp3` (or `.aac`, `.wav` as needed). Consistent prefixes allow cache invalidation through object replacement without touching URLs.
+3. **Attach tags with intention.** Use the `tags` relation to map playlists and tracks to personas such as `focus` or `deep-work`. Avoid renaming tag slugs—integrators in project B bookmark responses via these values.
+4. **Arrange tracks explicitly.** Use Strapi's drag-and-drop UI (or numeric ordering fields) to lock the playback order before publishing. Clients read the order as returned by the API, so publish only after verifying the sequence.
+5. **Reference API query patterns.** Common filters include `GET /api/playlists?filters[tags][slug][$in]=focus&populate=tracks.song`, `GET /api/playlists/{slug}?populate[tracks][populate][song]=true`, and `GET /api/tracks?filters[playlist][slug][$eq]=focus-morning&sort=order:asc&populate=tags`.
+6. **Preserve slugs long term.** Treat playlist and track slugs as permanent identifiers tied to CDN paths and client bookmarks. If you must rename a slug, schedule the change with client releases and provide redirect metadata.
+
 ### 7. Shut down and clean up
 - Stop the stack with `Ctrl+C`, then run `docker compose -f docker-compose.offline.yml down`.
 - To reset data, remove the named volumes: `docker volume rm cms-node-modules cms-sqlite minio-data`.

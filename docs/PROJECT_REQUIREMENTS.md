@@ -47,6 +47,17 @@ All environments (local, staging, production) must provide these variables. Gene
 - Keep filenames stable so cached URLs remain valid. Replacing media should upload a file with the same path unless you intend to invalidate client caches.
 - When using a CDN domain, configure the origin to point at the R2 bucket or a Cloudflare Worker that proxies R2.
 
+## Playlist & Media Editorial Workflow
+- **Create the playlist entry first.** In Strapi, add the playlist title, summary, stable `slug`, hero copy, and select (or upload) a cover image. Uploads should land under the `playlist/covers/{slug}_cover.{ext}` prefix in R2 to keep CDN cache keys predictable.
+- **Upload audio masters next.** For each track, upload the audio file (recommended prefix: `playlist/tracks/{playlist-slug}/{track-slug}.mp3`) and any waveform/preview assets. Keeping deterministic filenames allows Cloudflare CDN to reuse cached objects.
+- **Assign tags deliberately.** Use the `tags` relation so downstream services can filter playlists or tracks by tag slug. Tags should align with project B concepts (e.g. `focus`, `deep-work`). Avoid renaming tag slugs once published.
+- **Maintain track ordering.** Strapi collections support drag-and-drop ordering—ensure tracks remain in the intended listening sequence before publishing. Changing order updates the relational ordering that client apps rely on.
+- **Keep slugs immutable.** Playlist and song slugs act as bookmark anchors for clients and CDN paths. Only change slugs during a scheduled content migration, and be prepared to update any cached URLs or client seed data.
+- **Example API queries for integrators:**
+  - `GET /api/playlists?filters[tags][slug][$in]=focus&populate=tracks.song`
+  - `GET /api/playlists/{slug}?populate[tracks][populate][song]=true`
+  - `GET /api/tracks?filters[playlist][slug][$eq]=focus-morning&sort=order:asc&populate=tags`
+
 ## Security & Operations Expectations
 - Store secrets in a password manager or infrastructure secret store. Never commit secrets to Git.
 - Rotate Strapi application keys (`APP_KEYS`, JWT secrets, salts) and R2 credentials quarterly or when a team member leaves.
