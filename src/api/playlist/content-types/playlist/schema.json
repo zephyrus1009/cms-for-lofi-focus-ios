@@ -35,6 +35,11 @@
       "type": "component",
       "repeatable": true,
       "component": "music.playlist-track"
+    },
+    "isAdmin": {
+      "type": "boolean",
+      "default": false,
+      "required": true
     }
   }
 }
