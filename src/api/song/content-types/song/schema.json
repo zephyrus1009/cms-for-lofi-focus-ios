@@ -44,6 +44,11 @@
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::music-tag.music-tag"
+    },
+    "isAdmin": {
+      "type": "boolean",
+      "default": false,
+      "required": true
     }
   }
 }
